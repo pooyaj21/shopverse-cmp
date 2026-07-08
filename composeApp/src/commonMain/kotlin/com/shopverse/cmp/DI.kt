@@ -18,8 +18,12 @@ import com.shopverse.cmp.network.useCase.GetProductUseCase
 import com.shopverse.cmp.network.useCase.GetProductUseCaseImpl
 import com.shopverse.cmp.network.useCase.GetProductsUseCase
 import com.shopverse.cmp.network.useCase.GetProductsUseCaseImpl
+import com.shopverse.cmp.network.useCase.CompleteOnboardingUseCase
+import com.shopverse.cmp.network.useCase.CompleteOnboardingUseCaseImpl
 import com.shopverse.cmp.network.useCase.IsLoggedInUseCase
 import com.shopverse.cmp.network.useCase.IsLoggedInUseCaseImpl
+import com.shopverse.cmp.network.useCase.IsOnboardingDoneUseCase
+import com.shopverse.cmp.network.useCase.IsOnboardingDoneUseCaseImpl
 import com.shopverse.cmp.network.useCase.LoginUseCase
 import com.shopverse.cmp.network.useCase.LoginUseCaseImpl
 import com.shopverse.cmp.network.useCase.LogoutUseCase
@@ -27,6 +31,8 @@ import com.shopverse.cmp.network.useCase.LogoutUseCaseImpl
 import com.shopverse.cmp.network.useCase.SignUpUseCase
 import com.shopverse.cmp.network.useCase.SignUpUseCaseImpl
 import com.shopverse.cmp.screen.home.HomeViewModel
+import com.shopverse.cmp.screen.onboarding.OnboardingViewModel
+import com.shopverse.cmp.screen.splash.SplashViewModel
 import io.ktor.client.HttpClient
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
@@ -52,7 +58,11 @@ val appKoinModule = module {
     factory<SignUpUseCase> { SignUpUseCaseImpl(authRepository = get(), prefs = get()) }
     factory<LogoutUseCase> { LogoutUseCaseImpl(authRepository = get(), prefs = get()) }
     factory<IsLoggedInUseCase> { IsLoggedInUseCaseImpl(prefs = get()) }
+    factory<IsOnboardingDoneUseCase> { IsOnboardingDoneUseCaseImpl(prefs = get()) }
+    factory<CompleteOnboardingUseCase> { CompleteOnboardingUseCaseImpl(prefs = get()) }
 
     // ViewModels
+    viewModelOf(::SplashViewModel)
+    viewModelOf(::OnboardingViewModel)
     viewModelOf(::HomeViewModel)
 }

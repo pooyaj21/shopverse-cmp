@@ -11,6 +11,12 @@ import com.shopverse.cmp.model.ThemeMode
 private val Brand = Color(0xFF6C5CE7)
 private val BrandDark = Color(0xFFB3A7FF)
 
+/**
+ * Full-bleed brand background for splash + onboarding. Pinned across light/dark to match the
+ * Android app's `primaryMain` (#5047E5) so the two clients look identical on first launch.
+ */
+val ShopVerseIndigo = Color(0xFF5047E5)
+
 private val LightColors = lightColorScheme(
     primary = Brand,
     secondary = Color(0xFF00B894),
