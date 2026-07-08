@@ -8,23 +8,36 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import com.shopverse.cmp.model.ThemeMode
 
-private val Brand = Color(0xFF6C5CE7)
-private val BrandDark = Color(0xFFB3A7FF)
-
-/**
- * Full-bleed brand background for splash + onboarding. Pinned across light/dark to match the
- * Android app's `primaryMain` (#5047E5) so the two clients look identical on first launch.
- */
-val ShopVerseIndigo = Color(0xFF5047E5)
+// Brand palette, matched 1:1 to the Android app's AppColorProvider.
+val ShopVerseIndigo = Color(0xFF5047E5) // primaryMain + splash/onboarding background
+val AddToCartBlue = Color(0xFF4F46E5)
+val DiscountRed = Color(0xFFE53935)
+val RatingStar = Color(0xFFF5A623)
+val PriceMuted = Color(0xFF9AA0A6)
+val NavUnselected = Color(0xFF808080)
 
 private val LightColors = lightColorScheme(
-    primary = Brand,
+    primary = ShopVerseIndigo,
+    onPrimary = Color.White,
     secondary = Color(0xFF00B894),
+    background = Color(0xFFFDFAE8),
+    onBackground = Color(0xFF000000),
+    surface = Color(0xFFFFFFFF),
+    onSurface = Color(0xFF000000),
+    surfaceVariant = Color(0xFFEFEDE3),
+    onSurfaceVariant = Color(0xFF000000),
 )
 
 private val DarkColors = darkColorScheme(
-    primary = BrandDark,
+    primary = ShopVerseIndigo,
+    onPrimary = Color.White,
     secondary = Color(0xFF55EFC4),
+    background = Color(0xFF020517),
+    onBackground = Color(0xFFFFFFFF),
+    surface = Color(0xFF1F1F1F),
+    onSurface = Color(0xFFFFFFFF),
+    surfaceVariant = Color(0xFF2A2A2A),
+    onSurfaceVariant = Color(0xFFFFFFFF),
 )
 
 @Composable

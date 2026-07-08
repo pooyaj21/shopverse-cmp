@@ -25,6 +25,10 @@ sealed class Screen : NavigationRoute() {
     @Serializable
     data object Onboarding : Screen()
 
+    // Bottom-nav host wrapping the Home / Cart / Profile tabs.
+    @Serializable
+    data object Main : Screen()
+
     @Serializable
     data object Home : Screen()
 

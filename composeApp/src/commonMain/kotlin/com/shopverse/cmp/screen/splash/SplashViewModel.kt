@@ -26,7 +26,7 @@ class SplashViewModel(
         if (routed) return
         routed = true
         viewModelScope.launch {
-            val destination = if (isOnboardingDone()) Screen.Home else Screen.Onboarding
+            val destination = if (isOnboardingDone()) Screen.Main else Screen.Onboarding
             sendEffect(SplashEffect.Navigate(destination))
         }
     }

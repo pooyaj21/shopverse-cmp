@@ -39,7 +39,7 @@ fun OnboardingRoute(
 ) {
     viewModel.effectFlow.onEffect { effect ->
         when (effect) {
-            OnboardingEffect.Continue -> navController.navigate(Screen.Home) {
+            OnboardingEffect.Continue -> navController.navigate(Screen.Main) {
                 popUpTo(Screen.Onboarding) { inclusive = true }
             }
         }
