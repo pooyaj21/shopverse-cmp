@@ -1,0 +1,26 @@
+package com.shopverse.cmp
+
+import androidx.compose.runtime.Composable
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import com.shopverse.cmp.core.architecture.navigation.composable
+import com.shopverse.cmp.screen.Screen
+import com.shopverse.cmp.screen.home.HomeRoute
+import com.shopverse.cmp.screen.product.ProductRoute
+import com.shopverse.cmp.screen.splash.SplashRoute
+import org.koin.compose.viewmodel.koinViewModel
+
+@Composable
+fun NavigationStack(navController: NavHostController) {
+    NavHost(navController = navController, startDestination = Screen.Splash) {
+        composable<Screen.Splash> {
+            SplashRoute(navController = navController)
+        }
+        composable<Screen.Home> {
+            HomeRoute(navController = navController, viewModel = koinViewModel())
+        }
+        composable<Screen.Product> { entry ->
+            ProductRoute(navController = navController, slug = entry.args.slug)
+        }
+    }
+}
