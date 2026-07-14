@@ -20,8 +20,11 @@ fun NavigationStack(navController: NavHostController) {
         composable<Screen.Onboarding> {
             OnboardingRoute(navController = navController, viewModel = koinViewModel())
         }
-        composable<Screen.Main> {
-            MainScreen(rootNavController = navController)
+        composable<Screen.Main> { entry ->
+            MainScreen(
+                rootNavController = navController,
+                savedStateHandle = entry.navBackStackEntry.savedStateHandle,
+            )
         }
         composable<Screen.Product> { entry ->
             ProductRoute(navController = navController, slug = entry.args.slug)

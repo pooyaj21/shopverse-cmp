@@ -12,7 +12,10 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.shopverse.cmp.core.architecture.Route
 import com.shopverse.cmp.screen.Screen
+import com.shopverse.cmp.screen.component.ProductCard
 import com.shopverse.cmp.screen.component.ScreenTitle
+import com.shopverse.cmp.screen.main.MAIN_SELECT_TAB_CART
+import com.shopverse.cmp.screen.main.MAIN_SELECT_TAB_KEY
 
 @Composable
 fun HomeRoute(
@@ -26,6 +29,12 @@ fun HomeRoute(
         onEffect = { effect ->
             when (effect) {
                 is HomeEffect.OpenProduct -> navController.navigate(Screen.Product(effect.slug))
+                HomeEffect.OpenCart ->
+                    // We're already inside Main's tab host — just ask it to select Cart.
+                    runCatching { navController.getBackStackEntry(Screen.Main) }
+                        .getOrNull()
+                        ?.savedStateHandle
+                        ?.set(MAIN_SELECT_TAB_KEY, MAIN_SELECT_TAB_CART)
             }
         },
     ) { model ->
@@ -37,7 +46,13 @@ fun HomeRoute(
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             items(model.catalog, key = { it.id }) { product ->
-                ProductCard(product = product, onClick = { viewModel.onProductClick(product) })
+                ProductCard(
+                    product = product,
+                    isInCart = product.id in model.cartIds,
+                    onClick = { viewModel.onProductClick(product) },
+                    onAddToCart = { viewModel.addToCart(product) },
+                    onGoToCart = viewModel::onGoToCartClick,
+                )
             }
         }
     }

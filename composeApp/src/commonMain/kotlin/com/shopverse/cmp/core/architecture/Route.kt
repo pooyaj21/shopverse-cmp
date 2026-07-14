@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -19,7 +20,9 @@ fun Route(
     topBar: @Composable () -> Unit = {},
     screen: @Composable BoxScope.() -> Unit,
 ) {
-    Scaffold(topBar = topBar) { padding ->
+    // Scaffold places the topBar at the raw top edge; pad it below the status bar ourselves.
+    // On tab screens (inside MainScreen) the insets are already consumed, so this adds nothing.
+    Scaffold(topBar = { Box(Modifier.statusBarsPadding()) { topBar() } }) { padding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()

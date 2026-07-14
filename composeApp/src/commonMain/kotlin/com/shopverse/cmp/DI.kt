@@ -2,6 +2,7 @@ package com.shopverse.cmp
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import com.shopverse.cmp.core.cart.CartManager
 import com.shopverse.cmp.core.provider.database.DatabaseProvider
 import com.shopverse.cmp.core.provider.dataStore.DataStoreProvider
 import com.shopverse.cmp.database.dao.CartItemDAO
@@ -32,8 +33,10 @@ import com.shopverse.cmp.network.useCase.SignUpUseCase
 import com.shopverse.cmp.network.useCase.SignUpUseCaseImpl
 import com.shopverse.cmp.screen.home.HomeViewModel
 import com.shopverse.cmp.screen.onboarding.OnboardingViewModel
+import com.shopverse.cmp.screen.product.ProductDetailViewModel
 import com.shopverse.cmp.screen.splash.SplashViewModel
 import io.ktor.client.HttpClient
+import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
@@ -42,6 +45,7 @@ val appKoinModule = module {
     single<DataStore<Preferences>> { DataStoreProvider.dataStore!! }
     single<CartItemDAO> { DatabaseProvider.cartDao!! }
     single<HttpClient> { createHttpClient(prefs = get()) }
+    single { CartManager(cartDao = get()) }
 
     // Services
     factory<AuthService> { AuthServiceImpl(client = get()) }
@@ -65,4 +69,7 @@ val appKoinModule = module {
     viewModelOf(::SplashViewModel)
     viewModelOf(::OnboardingViewModel)
     viewModelOf(::HomeViewModel)
+    viewModel { params ->
+        ProductDetailViewModel(slug = params.get(), getProduct = get(), cartManager = get())
+    }
 }

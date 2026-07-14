@@ -14,7 +14,8 @@ val AddToCartBlue = Color(0xFF4F46E5)
 val DiscountRed = Color(0xFFE53935)
 val RatingStar = Color(0xFFF5A623)
 val PriceMuted = Color(0xFF9AA0A6)
-val NavUnselected = Color(0xFF808080)
+val TextGray = Color(0xFF808080) // Android's AppColorProvider.gray
+val NavUnselected = TextGray
 
 private val LightColors = lightColorScheme(
     primary = ShopVerseIndigo,

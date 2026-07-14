@@ -1,6 +1,7 @@
-package com.shopverse.cmp.screen.home
+package com.shopverse.cmp.screen.component
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -22,6 +23,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
@@ -30,19 +32,25 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.shopverse.cmp.core.theme.AddToCartBlue
-import com.shopverse.cmp.core.theme.DiscountRed
 import com.shopverse.cmp.core.theme.PriceMuted
 import com.shopverse.cmp.core.theme.RatingStar
 import com.shopverse.cmp.model.Product
-import kotlin.math.roundToInt
 import org.jetbrains.compose.resources.painterResource
 import shopversecmp.composeapp.generated.resources.Res
 import shopversecmp.composeapp.generated.resources.ic_add
+import shopversecmp.composeapp.generated.resources.ic_cart
 import shopversecmp.composeapp.generated.resources.ic_star
 
+/** Catalog grid cell, ported from the Android app's ProductCellView. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProductCard(product: Product, onClick: () -> Unit) {
+fun ProductCard(
+    product: Product,
+    isInCart: Boolean,
+    onClick: () -> Unit,
+    onAddToCart: () -> Unit,
+    onGoToCart: () -> Unit,
+) {
     Card(
         shape = RoundedCornerShape(18.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
@@ -67,17 +75,23 @@ fun ProductCard(product: Product, onClick: () -> Unit) {
                         modifier = Modifier.align(Alignment.TopStart).padding(8.dp),
                     )
                 }
+                // Same behaviour as Android's AppQuantitySelector: "+" adds the product,
+                // and once in the cart the icon flips to a cart that jumps to the Cart tab.
                 Box(
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
                         .padding(8.dp)
                         .size(36.dp)
-                        .background(AddToCartBlue, CircleShape),
+                        .clip(CircleShape)
+                        .background(AddToCartBlue)
+                        .clickable(onClick = if (isInCart) onGoToCart else onAddToCart),
                     contentAlignment = Alignment.Center,
                 ) {
                     Icon(
-                        painter = painterResource(Res.drawable.ic_add),
-                        contentDescription = "Add to cart",
+                        painter = painterResource(
+                            if (isInCart) Res.drawable.ic_cart else Res.drawable.ic_add,
+                        ),
+                        contentDescription = if (isInCart) "Go to cart" else "Add to cart",
                         tint = Color.White,
                         modifier = Modifier.size(20.dp),
                     )
@@ -143,35 +157,4 @@ fun ProductCard(product: Product, onClick: () -> Unit) {
             }
         }
     }
-}
-
-@Composable
-private fun DiscountBadge(percent: Int, modifier: Modifier = Modifier) {
-    Box(
-        modifier = modifier
-            .background(DiscountRed, RoundedCornerShape(50))
-            .padding(horizontal = 8.dp, vertical = 2.dp),
-    ) {
-        Text(
-            text = "-$percent%",
-            color = Color.White,
-            style = MaterialTheme.typography.labelMedium,
-            fontWeight = FontWeight.SemiBold,
-        )
-    }
-}
-
-private fun discountPercent(oldPrice: Double, currentPrice: Double): Int =
-    (((oldPrice - currentPrice) / oldPrice) * 100).roundToInt()
-
-private fun priceLabel(value: Double): String {
-    val cents = (value * 100).roundToInt()
-    val whole = cents / 100
-    val rem = cents % 100
-    return if (rem == 0) whole.toString() else "$whole.${rem.toString().padStart(2, '0')}"
-}
-
-private fun ratingLabel(value: Double): String {
-    val tenths = (value * 10).roundToInt()
-    return "${tenths / 10}.${tenths % 10}"
 }
