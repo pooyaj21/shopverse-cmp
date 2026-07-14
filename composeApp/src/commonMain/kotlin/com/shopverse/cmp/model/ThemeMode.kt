@@ -5,3 +5,10 @@ enum class ThemeMode {
     DARK,
     SYSTEM,
 }
+
+val ThemeMode.label: String
+    get() = when (this) {
+        ThemeMode.LIGHT -> "Light"
+        ThemeMode.DARK -> "Dark"
+        ThemeMode.SYSTEM -> "System"
+    }

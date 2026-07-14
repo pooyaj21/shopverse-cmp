@@ -13,6 +13,9 @@ actual val versionName: String
     get() = NSBundle.mainBundle.infoDictionary?.get("CFBundleShortVersionString") as? String
         ?: "1.0.0"
 
+actual val buildNumber: String
+    get() = NSBundle.mainBundle.infoDictionary?.get("CFBundleVersion") as? String ?: "1"
+
 @OptIn(ExperimentalNativeApi::class)
 actual val isDebug: Boolean get() = Platform.isDebugBinary
 

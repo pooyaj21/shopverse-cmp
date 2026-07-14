@@ -10,6 +10,8 @@ actual val platformName: String get() = "Android"
 
 actual val versionName: String get() = BuildConfig.VERSION_NAME
 
+actual val buildNumber: String get() = BuildConfig.VERSION_CODE.toString()
+
 actual val isDebug: Boolean get() = BuildConfig.DEBUG
 
 actual val requestEngin: HttpClientEngine get() = OkHttp.create()

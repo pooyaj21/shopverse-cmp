@@ -6,6 +6,8 @@ expect val platformName: String
 
 expect val versionName: String
 
+expect val buildNumber: String
+
 expect val isDebug: Boolean
 
 /** Per-platform Ktor engine: OkHttp on Android, Darwin on iOS. */

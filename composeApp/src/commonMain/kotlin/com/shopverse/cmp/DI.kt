@@ -29,12 +29,19 @@ import com.shopverse.cmp.network.useCase.LoginUseCase
 import com.shopverse.cmp.network.useCase.LoginUseCaseImpl
 import com.shopverse.cmp.network.useCase.LogoutUseCase
 import com.shopverse.cmp.network.useCase.LogoutUseCaseImpl
+import com.shopverse.cmp.network.useCase.GetThemeModeUseCase
+import com.shopverse.cmp.network.useCase.GetThemeModeUseCaseImpl
+import com.shopverse.cmp.network.useCase.ObserveThemeModeUseCase
+import com.shopverse.cmp.network.useCase.ObserveThemeModeUseCaseImpl
+import com.shopverse.cmp.network.useCase.SetThemeModeUseCase
+import com.shopverse.cmp.network.useCase.SetThemeModeUseCaseImpl
 import com.shopverse.cmp.network.useCase.SignUpUseCase
 import com.shopverse.cmp.network.useCase.SignUpUseCaseImpl
 import com.shopverse.cmp.screen.cart.CartViewModel
 import com.shopverse.cmp.screen.home.HomeViewModel
 import com.shopverse.cmp.screen.onboarding.OnboardingViewModel
 import com.shopverse.cmp.screen.product.ProductDetailViewModel
+import com.shopverse.cmp.screen.profile.ProfileViewModel
 import com.shopverse.cmp.screen.splash.SplashViewModel
 import io.ktor.client.HttpClient
 import org.koin.core.module.dsl.viewModel
@@ -65,12 +72,23 @@ val appKoinModule = module {
     factory<IsLoggedInUseCase> { IsLoggedInUseCaseImpl(prefs = get()) }
     factory<IsOnboardingDoneUseCase> { IsOnboardingDoneUseCaseImpl(prefs = get()) }
     factory<CompleteOnboardingUseCase> { CompleteOnboardingUseCaseImpl(prefs = get()) }
+    factory<GetThemeModeUseCase> { GetThemeModeUseCaseImpl(prefs = get()) }
+    factory<SetThemeModeUseCase> { SetThemeModeUseCaseImpl(prefs = get()) }
+    factory<ObserveThemeModeUseCase> { ObserveThemeModeUseCaseImpl(prefs = get()) }
 
     // ViewModels
     viewModelOf(::SplashViewModel)
     viewModelOf(::OnboardingViewModel)
     viewModelOf(::HomeViewModel)
     viewModelOf(::CartViewModel)
+    viewModel {
+        ProfileViewModel(
+            isLoggedIn = get(),
+            logoutUseCase = get(),
+            getThemeMode = get(),
+            setThemeMode = get(),
+        )
+    }
     viewModel { params ->
         ProductDetailViewModel(slug = params.get(), getProduct = get(), cartManager = get())
     }
