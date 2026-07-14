@@ -31,6 +31,7 @@ import com.shopverse.cmp.network.useCase.LogoutUseCase
 import com.shopverse.cmp.network.useCase.LogoutUseCaseImpl
 import com.shopverse.cmp.network.useCase.SignUpUseCase
 import com.shopverse.cmp.network.useCase.SignUpUseCaseImpl
+import com.shopverse.cmp.screen.cart.CartViewModel
 import com.shopverse.cmp.screen.home.HomeViewModel
 import com.shopverse.cmp.screen.onboarding.OnboardingViewModel
 import com.shopverse.cmp.screen.product.ProductDetailViewModel
@@ -69,6 +70,7 @@ val appKoinModule = module {
     viewModelOf(::SplashViewModel)
     viewModelOf(::OnboardingViewModel)
     viewModelOf(::HomeViewModel)
+    viewModelOf(::CartViewModel)
     viewModel { params ->
         ProductDetailViewModel(slug = params.get(), getProduct = get(), cartManager = get())
     }

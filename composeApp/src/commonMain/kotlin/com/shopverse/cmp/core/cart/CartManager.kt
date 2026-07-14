@@ -2,6 +2,7 @@ package com.shopverse.cmp.core.cart
 
 import com.shopverse.cmp.database.dao.CartItemDAO
 import com.shopverse.cmp.database.model.CartItemEntity
+import com.shopverse.cmp.model.LocalCartItem
 import com.shopverse.cmp.model.Product
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -16,6 +17,10 @@ class CartManager(private val cartDao: CartItemDAO) {
 
     val idsFlow: Flow<Set<String>> = cartDao.observeAll()
         .map { items -> items.map { it.productId }.toSet() }
+        .distinctUntilChanged()
+
+    val itemsFlow: Flow<List<LocalCartItem>> = cartDao.observeAll()
+        .map { items -> items.map { it.toLocalCartItem() } }
         .distinctUntilChanged()
 
     /** Adds [product] with count 1. No-op when already in the cart (same as Android). */
@@ -37,5 +42,16 @@ class CartManager(private val cartDao: CartItemDAO) {
         currency = currency,
         image = image,
         count = 1,
+    )
+
+    private fun CartItemEntity.toLocalCartItem(): LocalCartItem = LocalCartItem(
+        id = productId,
+        slug = slug,
+        title = title,
+        currentPrice = currentPrice,
+        oldPrice = oldPrice,
+        currency = currency,
+        image = image,
+        count = count,
     )
 }

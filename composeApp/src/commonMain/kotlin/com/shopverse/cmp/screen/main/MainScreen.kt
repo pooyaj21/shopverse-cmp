@@ -103,7 +103,7 @@ fun MainScreen(rootNavController: NavHostController, savedStateHandle: SavedStat
             composable<Screen.Home> {
                 HomeRoute(navController = rootNavController, viewModel = koinViewModel())
             }
-            composable<Screen.Cart> { CartRoute() }
+            composable<Screen.Cart> { CartRoute(navController = rootNavController) }
             composable<Screen.Profile> { ProfileRoute() }
         }
     }
