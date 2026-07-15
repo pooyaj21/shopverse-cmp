@@ -14,7 +14,6 @@ plugins {
 val versionProps = Properties().apply {
     load(File(rootDir, "version.properties").inputStream())
 }
-val customVersionCode = versionProps.getProperty("VERSION_CODE") ?: "1"
 val customVersionName = versionProps.getProperty("VERSION_NAME") ?: "1.0.0"
 
 // Supabase secrets live in local.properties (git-ignored). Base URL is public; the anon
@@ -108,7 +107,7 @@ android {
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionName = customVersionName
-        versionCode = customVersionCode.toInt()
+        versionCode = getVersionCode()
     }
     packaging {
         resources {
@@ -155,6 +154,42 @@ val generateSupabaseConfig by tasks.registering {
 
 kotlin.sourceSets.commonMain {
     kotlin.srcDir(generateSupabaseConfig)
+}
+
+/**
+ * Ported from the Android app's getVersionCode(): every build bumps VERSION_CODE in
+ * version.properties and returns the new value (so each build gets a fresh build number).
+ * Unlike Android this also mirrors the number into the iOS xcconfig — CURRENT_PROJECT_VERSION
+ * feeds CFBundleVersion, which is what Platform.native.kt reports as buildNumber — keeping the
+ * two apps on one shared counter. Runs at configuration time, so IDE syncs count as builds
+ * too (same behavior as the Android repo).
+ */
+fun getVersionCode(): Int {
+    val versionFile = File(rootDir, "version.properties")
+    if (!versionFile.exists()) return 1
+    val props = Properties().apply { versionFile.inputStream().use { load(it) } }
+    val oldCode = props.getProperty("VERSION_CODE")?.toIntOrNull() ?: 1
+    val newCode = oldCode + 1
+    props.setProperty("VERSION_CODE", newCode.toString())
+    versionFile.writer().use { props.store(it, null) }
+    syncIosBuildNumber(newCode)
+    return newCode
+}
+
+/** Rewrites CURRENT_PROJECT_VERSION in iosApp/Configuration/Config.xcconfig. Xcode reads the
+ *  xcconfig at build start (before the Kotlin framework script phase), so the iOS app picks a
+ *  bumped number up on its next build. */
+fun syncIosBuildNumber(code: Int) {
+    val xcconfig = File(rootDir, "iosApp/Configuration/Config.xcconfig")
+    if (!xcconfig.exists()) return
+    val lines = xcconfig.readLines().map { line ->
+        if (line.trimStart().startsWith("CURRENT_PROJECT_VERSION")) {
+            "CURRENT_PROJECT_VERSION=$code"
+        } else {
+            line
+        }
+    }
+    xcconfig.writeText(lines.joinToString("\n") + "\n")
 }
 
 dependencies {
