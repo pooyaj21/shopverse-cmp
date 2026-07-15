@@ -1,0 +1,47 @@
+default_platform(:android)
+
+platform :android do
+  desc "Build a signed release APK"
+  lane :build do
+    gradle(tasks: ["clean", ":composeApp:assembleRelease"])
+  end
+
+  desc "Build a signed release APK and publish it as a GitHub release"
+  lane :release do
+    build
+
+    tag = ENV.fetch("RELEASE_TAG")
+    apk_path = lane_context[SharedValues::GRADLE_APK_OUTPUT_PATH]
+    renamed_apk = File.join(File.dirname(apk_path), "shopverse-cmp-#{tag}.apk")
+    File.rename(apk_path, renamed_apk)
+
+    set_github_release(
+      repository_name: "pooyaj21/shopverse-cmp",
+      api_bearer: ENV.fetch("GITHUB_TOKEN"),
+      tag_name: tag,
+      name: "ShopVerse CMP #{tag}",
+      commitish: ENV["GITHUB_SHA"],
+      description: ENV["RELEASE_NOTES"] || "Automated release built by GitHub Actions + fastlane.",
+      upload_assets: [renamed_apk]
+    )
+
+    distribute(apk_path: renamed_apk, release_notes: "ShopVerse CMP #{tag}")
+  end
+
+  desc "Upload an APK to Firebase App Distribution (builds one if no apk_path is given)"
+  lane :distribute do |options|
+    apk_path = options[:apk_path]
+    unless apk_path
+      build
+      apk_path = lane_context[SharedValues::GRADLE_APK_OUTPUT_PATH]
+    end
+
+    firebase_app_distribution(
+      app: ENV.fetch("FIREBASE_APP_ID"),
+      android_artifact_type: "APK",
+      android_artifact_path: apk_path,
+      groups: ENV["FIREBASE_TESTER_GROUPS"] || "testers",
+      release_notes: options[:release_notes] || ENV["RELEASE_NOTES"] || "Built by fastlane"
+    )
+  end
+end

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "469773802985",
+    "project_id": "shopverse-cmp",
+    "storage_bucket": "shopverse-cmp.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:469773802985:android:1112022156cd21270d3f78",
+        "android_client_info": {
+          "package_name": "com.shopverse.cmp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBXjDFMbplWyiUKeppgrI7XE4J1gMtSDIU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

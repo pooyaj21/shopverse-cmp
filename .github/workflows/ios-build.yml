@@ -1,0 +1,57 @@
+name: iOS Build Check
+
+# Verifies the iOS target actually builds (Kotlin framework + Xcode app for the
+# simulator). Simulator builds need no code signing, so this runs without an
+# Apple Developer account — it checks buildability, it does not distribute.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build-ios:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Cache Kotlin/Native compiler
+        uses: actions/cache@v4
+        with:
+          path: ~/.konan
+          key: konan-${{ runner.os }}-${{ hashFiles('gradle/libs.versions.toml') }}
+          restore-keys: konan-${{ runner.os }}-
+
+      # Dummy values: the Android signing config is evaluated at Gradle
+      # configuration time even for iOS tasks, and the Supabase constants only
+      # need to exist to compile.
+      - name: Write local.properties
+        run: |
+          cat > local.properties <<EOF
+          supabase.url=
+          supabase.anonKey=
+          store=dummy.jks
+          storePass=dummy
+          keyAlias=dummy
+          keyPass=dummy
+          EOF
+
+      - name: Compile Kotlin framework (iosSimulatorArm64)
+        run: ./gradlew :composeApp:linkDebugFrameworkIosSimulatorArm64
+
+      - name: Build iOS app for simulator
+        run: |
+          xcodebuild build \
+            -project iosApp/iosApp.xcodeproj \
+            -scheme iosApp \
+            -configuration Debug \
+            -destination 'generic/platform=iOS Simulator' \
+            CODE_SIGNING_ALLOWED=NO

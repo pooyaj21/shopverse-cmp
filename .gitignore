@@ -19,3 +19,7 @@ captures
 
 # Release keystore — never commit
 *.jks
+
+# local bundler install (fastlane)
+vendor/bundle/
+.bundle/
