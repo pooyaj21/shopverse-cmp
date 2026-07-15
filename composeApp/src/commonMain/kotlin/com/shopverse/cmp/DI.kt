@@ -21,6 +21,12 @@ import com.shopverse.cmp.network.useCase.GetProductsUseCase
 import com.shopverse.cmp.network.useCase.GetProductsUseCaseImpl
 import com.shopverse.cmp.network.useCase.CompleteOnboardingUseCase
 import com.shopverse.cmp.network.useCase.CompleteOnboardingUseCaseImpl
+import com.shopverse.cmp.network.useCase.DeleteAccountUseCase
+import com.shopverse.cmp.network.useCase.DeleteAccountUseCaseImpl
+import com.shopverse.cmp.network.useCase.FetchProfileUseCase
+import com.shopverse.cmp.network.useCase.FetchProfileUseCaseImpl
+import com.shopverse.cmp.network.useCase.GetSavedProfileUseCase
+import com.shopverse.cmp.network.useCase.GetSavedProfileUseCaseImpl
 import com.shopverse.cmp.network.useCase.IsLoggedInUseCase
 import com.shopverse.cmp.network.useCase.IsLoggedInUseCaseImpl
 import com.shopverse.cmp.network.useCase.IsOnboardingDoneUseCase
@@ -37,6 +43,8 @@ import com.shopverse.cmp.network.useCase.SetThemeModeUseCase
 import com.shopverse.cmp.network.useCase.SetThemeModeUseCaseImpl
 import com.shopverse.cmp.network.useCase.SignUpUseCase
 import com.shopverse.cmp.network.useCase.SignUpUseCaseImpl
+import com.shopverse.cmp.screen.account.AccountViewModel
+import com.shopverse.cmp.screen.auth.AuthViewModel
 import com.shopverse.cmp.screen.cart.CartViewModel
 import com.shopverse.cmp.screen.home.HomeViewModel
 import com.shopverse.cmp.screen.onboarding.OnboardingViewModel
@@ -70,6 +78,9 @@ val appKoinModule = module {
     factory<SignUpUseCase> { SignUpUseCaseImpl(authRepository = get(), prefs = get()) }
     factory<LogoutUseCase> { LogoutUseCaseImpl(authRepository = get(), prefs = get()) }
     factory<IsLoggedInUseCase> { IsLoggedInUseCaseImpl(prefs = get()) }
+    factory<GetSavedProfileUseCase> { GetSavedProfileUseCaseImpl(prefs = get()) }
+    factory<FetchProfileUseCase> { FetchProfileUseCaseImpl(authRepository = get(), prefs = get()) }
+    factory<DeleteAccountUseCase> { DeleteAccountUseCaseImpl(authRepository = get(), prefs = get()) }
     factory<IsOnboardingDoneUseCase> { IsOnboardingDoneUseCaseImpl(prefs = get()) }
     factory<CompleteOnboardingUseCase> { CompleteOnboardingUseCaseImpl(prefs = get()) }
     factory<GetThemeModeUseCase> { GetThemeModeUseCaseImpl(prefs = get()) }
@@ -81,6 +92,14 @@ val appKoinModule = module {
     viewModelOf(::OnboardingViewModel)
     viewModelOf(::HomeViewModel)
     viewModelOf(::CartViewModel)
+    viewModel { AuthViewModel(loginUseCase = get(), signUpUseCase = get()) }
+    viewModel {
+        AccountViewModel(
+            getSavedProfile = get(),
+            fetchProfile = get(),
+            deleteAccountUseCase = get(),
+        )
+    }
     viewModel {
         ProfileViewModel(
             isLoggedIn = get(),

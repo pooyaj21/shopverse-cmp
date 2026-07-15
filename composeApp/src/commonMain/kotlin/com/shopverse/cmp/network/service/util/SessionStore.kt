@@ -3,8 +3,11 @@ package com.shopverse.cmp.network.service.util
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import com.shopverse.cmp.core.dataStore.Keys
+import com.shopverse.cmp.core.dataStore.getObject
 import com.shopverse.cmp.core.dataStore.getString
+import com.shopverse.cmp.core.dataStore.saveObject
 import com.shopverse.cmp.core.dataStore.saveString
+import com.shopverse.cmp.model.UserProfile
 import com.shopverse.cmp.network.model.response.AuthResponse
 
 /**
@@ -28,6 +31,14 @@ object SessionStore {
         prefs.saveString(Keys.USER_ID, null)
         prefs.saveString(Keys.PROFILE, null)
     }
+
+    /** Saved separately from [save] — name/email come from the caller (fallback name on signup). */
+    fun saveProfile(prefs: DataStore<Preferences>, profile: UserProfile) {
+        prefs.saveObject(Keys.PROFILE, profile, UserProfile.serializer())
+    }
+
+    fun profile(prefs: DataStore<Preferences>): UserProfile? =
+        prefs.getObject(Keys.PROFILE, UserProfile.serializer())
 
     fun accessToken(prefs: DataStore<Preferences>): String? = prefs.getString(Keys.ACCESS_TOKEN)
     fun refreshToken(prefs: DataStore<Preferences>): String? = prefs.getString(Keys.REFRESH_TOKEN)

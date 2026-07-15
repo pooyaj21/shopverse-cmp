@@ -104,7 +104,7 @@ fun MainScreen(rootNavController: NavHostController, savedStateHandle: SavedStat
                 HomeRoute(navController = rootNavController, viewModel = koinViewModel())
             }
             composable<Screen.Cart> { CartRoute(navController = rootNavController) }
-            composable<Screen.Profile> { ProfileRoute() }
+            composable<Screen.Profile> { ProfileRoute(navController = rootNavController) }
         }
     }
 }

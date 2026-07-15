@@ -5,6 +5,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import com.shopverse.cmp.core.architecture.navigation.composable
 import com.shopverse.cmp.screen.Screen
+import com.shopverse.cmp.screen.account.AccountRoute
 import com.shopverse.cmp.screen.main.MainScreen
 import com.shopverse.cmp.screen.onboarding.OnboardingRoute
 import com.shopverse.cmp.screen.product.ProductRoute
@@ -28,6 +29,9 @@ fun NavigationStack(navController: NavHostController) {
         }
         composable<Screen.Product> { entry ->
             ProductRoute(navController = navController, slug = entry.args.slug)
+        }
+        composable<Screen.Account> {
+            AccountRoute(navController = navController)
         }
     }
 }

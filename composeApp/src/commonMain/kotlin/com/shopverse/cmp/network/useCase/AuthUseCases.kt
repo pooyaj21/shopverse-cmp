@@ -7,15 +7,38 @@ import com.shopverse.cmp.network.model.response.AuthResponse
 import com.shopverse.cmp.network.repository.AuthRepository
 import com.shopverse.cmp.network.service.util.AppResult
 import com.shopverse.cmp.network.service.util.SessionStore
+import com.shopverse.cmp.network.service.util.doOnSuccess
 import com.shopverse.cmp.network.service.util.mapIfSuccess
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-private fun AuthResponse.toProfile(fallbackName: String? = null): UserProfile = UserProfile(
-    id = user?.id.orEmpty(),
-    name = user?.userMetadata?.name ?: fallbackName,
-    email = user?.email,
-)
+/**
+ * Stores tokens + profile from a successful auth response, mirroring Android's
+ * AuthRepositoryImpl.persistAndMap. A 2xx response without a session (signup while email
+ * confirmation is enabled) becomes a remote error so the sheet can tell the user to go confirm.
+ */
+private fun persistSession(
+    prefs: DataStore<Preferences>,
+    auth: AuthResponse,
+    fallbackName: String? = null,
+): AppResult<UserProfile> {
+    val user = auth.user
+    if (auth.accessToken.isNullOrBlank() || user == null) {
+        return AppResult.Error.Remote(
+            httpCode = 200,
+            message = "email_confirmation_required",
+            cause = null,
+        )
+    }
+    SessionStore.save(prefs, auth)
+    val profile = UserProfile(
+        id = user.id,
+        name = user.userMetadata?.name ?: fallbackName,
+        email = user.email,
+    )
+    SessionStore.saveProfile(prefs, profile)
+    return AppResult.Success(profile)
+}
 
 interface LoginUseCase : UseCase {
     suspend operator fun invoke(email: String, password: String): AppResult<UserProfile>
@@ -27,9 +50,9 @@ class LoginUseCaseImpl(
 ) : LoginUseCase {
     override suspend fun invoke(email: String, password: String): AppResult<UserProfile> =
         withContext(Dispatchers.Default) {
-            authRepository.login(email, password).mapIfSuccess { auth ->
-                SessionStore.save(prefs, auth)
-                auth.toProfile()
+            when (val result = authRepository.login(email, password)) {
+                is AppResult.Success -> persistSession(prefs, result.value)
+                is AppResult.Error -> result
             }
         }
 }
@@ -44,10 +67,9 @@ class SignUpUseCaseImpl(
 ) : SignUpUseCase {
     override suspend fun invoke(name: String, email: String, password: String): AppResult<UserProfile> =
         withContext(Dispatchers.Default) {
-            authRepository.signUp(name, email, password).mapIfSuccess { auth ->
-                // When email confirmation is disabled the signup response already carries a session.
-                SessionStore.save(prefs, auth)
-                auth.toProfile(fallbackName = name)
+            when (val result = authRepository.signUp(name, email, password)) {
+                is AppResult.Success -> persistSession(prefs, result.value, fallbackName = name)
+                is AppResult.Error -> result
             }
         }
 }
@@ -76,4 +98,51 @@ class IsLoggedInUseCaseImpl(
     private val prefs: DataStore<Preferences>,
 ) : IsLoggedInUseCase {
     override fun invoke(): Boolean = SessionStore.isLoggedIn(prefs)
+}
+
+interface GetSavedProfileUseCase : UseCase {
+    operator fun invoke(): UserProfile?
+}
+
+class GetSavedProfileUseCaseImpl(
+    private val prefs: DataStore<Preferences>,
+) : GetSavedProfileUseCase {
+    override fun invoke(): UserProfile? =
+        if (SessionStore.isLoggedIn(prefs)) SessionStore.profile(prefs) else null
+}
+
+interface FetchProfileUseCase : UseCase {
+    suspend operator fun invoke(): AppResult<UserProfile>
+}
+
+/** `GET /auth/v1/user` — refreshes the locally saved profile from the server. */
+class FetchProfileUseCaseImpl(
+    private val authRepository: AuthRepository,
+    private val prefs: DataStore<Preferences>,
+) : FetchProfileUseCase {
+    override suspend fun invoke(): AppResult<UserProfile> = withContext(Dispatchers.Default) {
+        authRepository.fetchUser().mapIfSuccess { user ->
+            val profile = UserProfile(
+                id = user.id,
+                name = user.userMetadata?.name,
+                email = user.email,
+            )
+            SessionStore.saveProfile(prefs, profile)
+            profile
+        }
+    }
+}
+
+interface DeleteAccountUseCase : UseCase {
+    suspend operator fun invoke(): AppResult<Unit>
+}
+
+/** `POST /functions/v1/delete-account` — the session is gone server-side, so clear it locally. */
+class DeleteAccountUseCaseImpl(
+    private val authRepository: AuthRepository,
+    private val prefs: DataStore<Preferences>,
+) : DeleteAccountUseCase {
+    override suspend fun invoke(): AppResult<Unit> = withContext(Dispatchers.Default) {
+        authRepository.deleteAccount().doOnSuccess { SessionStore.clear(prefs) }
+    }
 }

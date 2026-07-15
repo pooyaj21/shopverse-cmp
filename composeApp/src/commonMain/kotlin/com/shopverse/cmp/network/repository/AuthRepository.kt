@@ -3,14 +3,18 @@ package com.shopverse.cmp.network.repository
 import com.shopverse.cmp.network.model.request.LoginRequest
 import com.shopverse.cmp.network.model.request.SignUpRequest
 import com.shopverse.cmp.network.model.response.AuthResponse
+import com.shopverse.cmp.network.model.response.AuthUser
 import com.shopverse.cmp.network.service.service.AuthService
 import com.shopverse.cmp.network.service.util.AppResult
+import com.shopverse.cmp.network.service.util.mapIfSuccess
 import com.shopverse.cmp.network.service.util.safeApiCall
 
 interface AuthRepository {
     suspend fun signUp(name: String, email: String, password: String): AppResult<AuthResponse>
     suspend fun login(email: String, password: String): AppResult<AuthResponse>
     suspend fun logout(): AppResult<Unit>
+    suspend fun fetchUser(): AppResult<AuthUser>
+    suspend fun deleteAccount(): AppResult<Unit>
 }
 
 class AuthRepositoryImpl(
@@ -33,4 +37,10 @@ class AuthRepositoryImpl(
 
     override suspend fun logout(): AppResult<Unit> =
         safeApiCall { authService.logout() }
+
+    override suspend fun fetchUser(): AppResult<AuthUser> =
+        safeApiCall { authService.getUser() }
+
+    override suspend fun deleteAccount(): AppResult<Unit> =
+        safeApiCall { authService.deleteAccount() }.mapIfSuccess { }
 }

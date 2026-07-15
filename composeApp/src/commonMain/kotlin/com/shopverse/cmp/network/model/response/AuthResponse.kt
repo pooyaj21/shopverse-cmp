@@ -13,6 +13,7 @@ data class AuthResponse(
     @SerialName("user") val user: AuthUser? = null,
 )
 
+/** Also the naked response shape of `GET /auth/v1/user`. */
 @Serializable
 data class AuthUser(
     @SerialName("id") val id: String,
@@ -24,3 +25,9 @@ data class AuthUser(
         @SerialName("name") val name: String? = null,
     )
 }
+
+/** `data` payload of the `delete-account` edge function's envelope. */
+@Serializable
+data class DeleteAccountResponse(
+    @SerialName("deleted") val deleted: Boolean = false,
+)

@@ -20,6 +20,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,11 +30,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.shopverse.cmp.core.architecture.Route
 import com.shopverse.cmp.core.theme.DiscountRed
 import com.shopverse.cmp.core.theme.TextGray
 import com.shopverse.cmp.model.ThemeMode
 import com.shopverse.cmp.model.label
+import com.shopverse.cmp.screen.Screen
+import com.shopverse.cmp.screen.auth.AuthBottomSheet
 import com.shopverse.cmp.screen.component.ScreenTitle
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
@@ -49,11 +53,16 @@ import shopversecmp.composeapp.generated.resources.ic_chevron_end
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileRoute() {
+fun ProfileRoute(navController: NavHostController) {
     val viewModel = koinViewModel<ProfileViewModel>()
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     var themePickerFor by remember { mutableStateOf<ThemeMode?>(null) }
+    var showAuthSheet by remember { mutableStateOf(false) }
+
+    // The ViewModel outlives this composition (tab switches, pushed screens), so re-read the
+    // login state whenever the tab comes back — e.g. after Account deletes the user.
+    LaunchedEffect(Unit) { viewModel.refresh() }
 
     Route(
         viewModel = viewModel,
@@ -62,6 +71,8 @@ fun ProfileRoute() {
             when (effect) {
                 is ProfileEffect.ShowMessage ->
                     scope.launch { snackbarHostState.showSnackbar(effect.text) }
+                ProfileEffect.ShowLogin -> showAuthSheet = true
+                ProfileEffect.OpenAccount -> navController.navigate(Screen.Account)
             }
         },
     ) { model ->
@@ -100,6 +111,16 @@ fun ProfileRoute() {
         SnackbarHost(
             hostState = snackbarHostState,
             modifier = Modifier.align(Alignment.BottomCenter),
+        )
+    }
+
+    if (showAuthSheet) {
+        AuthBottomSheet(
+            onAuthenticated = {
+                showAuthSheet = false
+                viewModel.refresh()
+            },
+            onDismiss = { showAuthSheet = false },
         )
     }
 

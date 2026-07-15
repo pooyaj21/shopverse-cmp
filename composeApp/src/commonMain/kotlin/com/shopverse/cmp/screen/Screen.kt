@@ -47,15 +47,15 @@ sealed class Screen : NavigationRoute() {
 
     @Serializable
     data object Profile : Screen()
+
+    // Pushed from Profile's "Profile" row — shows the saved account + delete account.
+    @Serializable
+    data object Account : Screen()
 }
 
-/** Dialog / bottom-sheet destinations. */
+/**
+ * Dialog destinations. Currently empty: auth ships as an in-screen ModalBottomSheet
+ * (screen/auth/AuthBottomSheet) like Android's AuthBottomSheetFragment, not a nav dialog.
+ */
 @Serializable
-sealed class Dialog : NavigationRoute() {
-
-    @Serializable
-    data object Login : Dialog()
-
-    @Serializable
-    data object SignUp : Dialog()
-}
+sealed class Dialog : NavigationRoute()

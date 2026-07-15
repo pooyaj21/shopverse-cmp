@@ -44,6 +44,8 @@ sealed interface ProfileItem {
 
 sealed interface ProfileEffect {
     data class ShowMessage(val text: String) : ProfileEffect
+    data object ShowLogin : ProfileEffect
+    data object OpenAccount : ProfileEffect
 }
 
 class ProfileViewModel(
@@ -73,16 +75,13 @@ class ProfileViewModel(
         }
     }
 
-    // TODO(auth): replace with the login/sign-up dialogs once they're built; Account and
-    // Orders then navigate like the Android app's ensureUserLogin { ... } handlers.
+    // TODO(orders): navigate to the orders screen once it exists.
     fun onItemClick(item: ProfileItem) {
         viewModelScope.launch {
             when (item) {
-                ProfileItem.Simple.Login ->
-                    sendEffect(ProfileEffect.ShowMessage("Login arrives with the auth feature."))
+                ProfileItem.Simple.Login -> sendEffect(ProfileEffect.ShowLogin)
                 ProfileItem.Simple.Logout -> logout()
-                ProfileItem.Navigatable.Account ->
-                    sendEffect(ProfileEffect.ShowMessage("Account arrives with the auth feature."))
+                ProfileItem.Navigatable.Account -> sendEffect(ProfileEffect.OpenAccount)
                 ProfileItem.Navigatable.Orders ->
                     sendEffect(ProfileEffect.ShowMessage("Orders arrive with the orders feature."))
                 else -> Unit
