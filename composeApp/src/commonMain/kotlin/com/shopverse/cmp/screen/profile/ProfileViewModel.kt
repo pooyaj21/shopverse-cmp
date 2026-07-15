@@ -46,6 +46,7 @@ sealed interface ProfileEffect {
     data class ShowMessage(val text: String) : ProfileEffect
     data object ShowLogin : ProfileEffect
     data object OpenAccount : ProfileEffect
+    data object OpenOrders : ProfileEffect
 }
 
 class ProfileViewModel(
@@ -75,15 +76,13 @@ class ProfileViewModel(
         }
     }
 
-    // TODO(orders): navigate to the orders screen once it exists.
     fun onItemClick(item: ProfileItem) {
         viewModelScope.launch {
             when (item) {
                 ProfileItem.Simple.Login -> sendEffect(ProfileEffect.ShowLogin)
                 ProfileItem.Simple.Logout -> logout()
                 ProfileItem.Navigatable.Account -> sendEffect(ProfileEffect.OpenAccount)
-                ProfileItem.Navigatable.Orders ->
-                    sendEffect(ProfileEffect.ShowMessage("Orders arrive with the orders feature."))
+                ProfileItem.Navigatable.Orders -> sendEffect(ProfileEffect.OpenOrders)
                 else -> Unit
             }
         }

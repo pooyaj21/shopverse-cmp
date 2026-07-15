@@ -28,8 +28,11 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -47,6 +50,7 @@ import com.shopverse.cmp.core.theme.PriceMuted
 import com.shopverse.cmp.core.theme.TextGray
 import com.shopverse.cmp.model.LocalCartItem
 import com.shopverse.cmp.screen.Screen
+import com.shopverse.cmp.screen.auth.AuthBottomSheet
 import com.shopverse.cmp.screen.component.ScreenTitle
 import com.shopverse.cmp.screen.component.priceLabel
 import kotlinx.coroutines.launch
@@ -65,6 +69,7 @@ fun CartRoute(navController: NavHostController) {
     val viewModel = koinViewModel<CartViewModel>()
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+    var showAuthSheet by remember { mutableStateOf(false) }
     Route(
         viewModel = viewModel,
         topBar = { ScreenTitle("Cart") },
@@ -73,6 +78,9 @@ fun CartRoute(navController: NavHostController) {
                 is CartEffect.OpenProduct -> navController.navigate(Screen.Product(effect.slug))
                 is CartEffect.ShowMessage ->
                     scope.launch { snackbarHostState.showSnackbar(effect.text) }
+                CartEffect.ShowLogin -> showAuthSheet = true
+                is CartEffect.OrderPlaced ->
+                    navController.navigate(Screen.OrderDetail(effect.orderId))
             }
         },
     ) { model ->
@@ -99,7 +107,7 @@ fun CartRoute(navController: NavHostController) {
                     }
                 }
                 Button(
-                    onClick = viewModel::placeOrder,
+                    onClick = viewModel::onPlaceOrderClick,
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = AddToCartBlue,
@@ -121,6 +129,16 @@ fun CartRoute(navController: NavHostController) {
         SnackbarHost(
             hostState = snackbarHostState,
             modifier = Modifier.align(Alignment.BottomCenter),
+        )
+    }
+
+    if (showAuthSheet) {
+        AuthBottomSheet(
+            onAuthenticated = {
+                showAuthSheet = false
+                viewModel.placeOrder()
+            },
+            onDismiss = { showAuthSheet = false },
         )
     }
 }

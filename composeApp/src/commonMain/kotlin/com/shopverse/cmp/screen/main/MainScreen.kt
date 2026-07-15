@@ -36,10 +36,12 @@ import shopversecmp.composeapp.generated.resources.ic_cart
 import shopversecmp.composeapp.generated.resources.ic_home
 import shopversecmp.composeapp.generated.resources.ic_profile
 
-// Other screens ask the tab host to switch tabs through Main's SavedStateHandle — the CMP
-// equivalent of Android's NavigatorScreenArgs.selectTabTag.
+// Other screens (and the DeepLinkLauncher) ask the tab host to switch tabs through Main's
+// SavedStateHandle — the CMP equivalent of Android's NavigatorScreenArgs.selectTabTag.
 const val MAIN_SELECT_TAB_KEY = "main.selectTab"
+const val MAIN_SELECT_TAB_HOME = "home"
 const val MAIN_SELECT_TAB_CART = "cart"
+const val MAIN_SELECT_TAB_PROFILE = "profile"
 
 private data class Tab(val screen: Screen, val icon: DrawableResource, val label: String)
 
@@ -58,9 +60,15 @@ fun MainScreen(rootNavController: NavHostController, savedStateHandle: SavedStat
         .getStateFlow<String?>(MAIN_SELECT_TAB_KEY, null)
         .collectAsState()
     LaunchedEffect(pendingTab) {
-        if (pendingTab == MAIN_SELECT_TAB_CART) {
+        val target = when (pendingTab) {
+            MAIN_SELECT_TAB_HOME -> Screen.Home
+            MAIN_SELECT_TAB_CART -> Screen.Cart
+            MAIN_SELECT_TAB_PROFILE -> Screen.Profile
+            else -> null
+        }
+        if (target != null) {
             savedStateHandle[MAIN_SELECT_TAB_KEY] = null
-            tabNav.navigate(Screen.Cart) {
+            tabNav.navigate(target) {
                 popUpTo(tabNav.graph.findStartDestination().id) { saveState = true }
                 launchSingleTop = true
                 restoreState = true

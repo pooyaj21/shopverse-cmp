@@ -8,11 +8,15 @@ import com.shopverse.cmp.core.provider.dataStore.DataStoreProvider
 import com.shopverse.cmp.database.dao.CartItemDAO
 import com.shopverse.cmp.network.repository.AuthRepository
 import com.shopverse.cmp.network.repository.AuthRepositoryImpl
+import com.shopverse.cmp.network.repository.OrderRepository
+import com.shopverse.cmp.network.repository.OrderRepositoryImpl
 import com.shopverse.cmp.network.repository.ProductRepository
 import com.shopverse.cmp.network.repository.ProductRepositoryImpl
 import com.shopverse.cmp.network.service.createHttpClient
 import com.shopverse.cmp.network.service.service.AuthService
 import com.shopverse.cmp.network.service.service.AuthServiceImpl
+import com.shopverse.cmp.network.service.service.OrderService
+import com.shopverse.cmp.network.service.service.OrderServiceImpl
 import com.shopverse.cmp.network.service.service.ProductService
 import com.shopverse.cmp.network.service.service.ProductServiceImpl
 import com.shopverse.cmp.network.useCase.GetProductUseCase
@@ -35,6 +39,10 @@ import com.shopverse.cmp.network.useCase.LoginUseCase
 import com.shopverse.cmp.network.useCase.LoginUseCaseImpl
 import com.shopverse.cmp.network.useCase.LogoutUseCase
 import com.shopverse.cmp.network.useCase.LogoutUseCaseImpl
+import com.shopverse.cmp.network.useCase.GetOrderUseCase
+import com.shopverse.cmp.network.useCase.GetOrderUseCaseImpl
+import com.shopverse.cmp.network.useCase.GetOrdersUseCase
+import com.shopverse.cmp.network.useCase.GetOrdersUseCaseImpl
 import com.shopverse.cmp.network.useCase.GetThemeModeUseCase
 import com.shopverse.cmp.network.useCase.GetThemeModeUseCaseImpl
 import com.shopverse.cmp.network.useCase.ObserveThemeModeUseCase
@@ -43,9 +51,13 @@ import com.shopverse.cmp.network.useCase.SetThemeModeUseCase
 import com.shopverse.cmp.network.useCase.SetThemeModeUseCaseImpl
 import com.shopverse.cmp.network.useCase.SignUpUseCase
 import com.shopverse.cmp.network.useCase.SignUpUseCaseImpl
+import com.shopverse.cmp.network.useCase.SubmitOrderUseCase
+import com.shopverse.cmp.network.useCase.SubmitOrderUseCaseImpl
 import com.shopverse.cmp.screen.account.AccountViewModel
 import com.shopverse.cmp.screen.auth.AuthViewModel
 import com.shopverse.cmp.screen.cart.CartViewModel
+import com.shopverse.cmp.screen.orderDetail.OrderDetailViewModel
+import com.shopverse.cmp.screen.orders.OrdersViewModel
 import com.shopverse.cmp.screen.home.HomeViewModel
 import com.shopverse.cmp.screen.onboarding.OnboardingViewModel
 import com.shopverse.cmp.screen.product.ProductDetailViewModel
@@ -66,14 +78,19 @@ val appKoinModule = module {
     // Services
     factory<AuthService> { AuthServiceImpl(client = get()) }
     factory<ProductService> { ProductServiceImpl(client = get()) }
+    factory<OrderService> { OrderServiceImpl(client = get()) }
 
     // Repositories
     factory<AuthRepository> { AuthRepositoryImpl(authService = get()) }
     factory<ProductRepository> { ProductRepositoryImpl(productService = get()) }
+    factory<OrderRepository> { OrderRepositoryImpl(orderService = get()) }
 
     // Use cases
     factory<GetProductsUseCase> { GetProductsUseCaseImpl(productRepository = get()) }
     factory<GetProductUseCase> { GetProductUseCaseImpl(productRepository = get()) }
+    factory<SubmitOrderUseCase> { SubmitOrderUseCaseImpl(orderRepository = get()) }
+    factory<GetOrdersUseCase> { GetOrdersUseCaseImpl(orderRepository = get()) }
+    factory<GetOrderUseCase> { GetOrderUseCaseImpl(orderRepository = get()) }
     factory<LoginUseCase> { LoginUseCaseImpl(authRepository = get(), prefs = get()) }
     factory<SignUpUseCase> { SignUpUseCaseImpl(authRepository = get(), prefs = get()) }
     factory<LogoutUseCase> { LogoutUseCaseImpl(authRepository = get(), prefs = get()) }
@@ -91,7 +108,13 @@ val appKoinModule = module {
     viewModelOf(::SplashViewModel)
     viewModelOf(::OnboardingViewModel)
     viewModelOf(::HomeViewModel)
-    viewModelOf(::CartViewModel)
+    viewModel {
+        CartViewModel(cartManager = get(), isLoggedIn = get(), submitOrder = get())
+    }
+    viewModelOf(::OrdersViewModel)
+    viewModel { params ->
+        OrderDetailViewModel(orderId = params.get(), getOrder = get())
+    }
     viewModel { AuthViewModel(loginUseCase = get(), signUpUseCase = get()) }
     viewModel {
         AccountViewModel(

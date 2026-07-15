@@ -8,6 +8,9 @@ data class OrderSummary(
     val currency: String,
 )
 
+// The submit-order response also carries a `qrCodeDataUrl` + `deeplink`, but like Android we
+// rebuild the deeplink as `shopverse://orders/<id>` and render the QR locally (qrose), so old
+// orders opened from history get a receipt too.
 data class OrderDetail(
     val id: String,
     val placedAt: String,
@@ -15,9 +18,6 @@ data class OrderDetail(
     val originalTotal: Double?,
     val currency: String,
     val items: List<OrderLineItem>,
-    // Present only on the submit-order response (edge function): QR receipt + deeplink.
-    val qrCodeDataUrl: String? = null,
-    val deeplink: String? = null,
 )
 
 data class OrderLineItem(

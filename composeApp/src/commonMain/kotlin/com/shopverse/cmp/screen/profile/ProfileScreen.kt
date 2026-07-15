@@ -73,6 +73,7 @@ fun ProfileRoute(navController: NavHostController) {
                     scope.launch { snackbarHostState.showSnackbar(effect.text) }
                 ProfileEffect.ShowLogin -> showAuthSheet = true
                 ProfileEffect.OpenAccount -> navController.navigate(Screen.Account)
+                ProfileEffect.OpenOrders -> navController.navigate(Screen.Orders)
             }
         },
     ) { model ->
