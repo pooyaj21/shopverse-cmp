@@ -134,6 +134,12 @@ android {
     buildFeatures {
         buildConfig = true
     }
+    lint {
+        // androidx.lifecycle's NullSafeMutableLiveData detector crashes under the
+        // Kotlin 2.x analysis API (KaCallableMemberCall "class vs interface" error),
+        // which kills lintVitalAnalyzeRelease and with it the whole release build.
+        disable += "NullSafeMutableLiveData"
+    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
