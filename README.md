@@ -5,10 +5,12 @@ base across **Android** and **iOS**, talking to the same Supabase backend
 ([`../shopverse-supabase/docs/API.md`](../shopverse-supabase/docs/API.md)) as the
 native Android reference app.
 
-> Status: **scaffold + architecture in place.** Splash → Home (paged catalog) runs
-> end-to-end against live Supabase on both platforms. Cart, orders/QR receipt, auth
-> screens, and profile are the next milestones (see `../shopverse-idea/week-4-cmp-core.md`
-> and `week-5-cmp-multiplatform.md`).
+> Status: ✅ **done — full canonical feature set on Android + iOS**: splash,
+> onboarding, auth (sign-up / login / logout / delete account), paged catalog,
+> product detail, local cart, order submit with QR receipt, order history +
+> detail, profile + theme toggle, and `shopverse://orders/<id>` deep linking.
+> Android releases ship via fastlane + GitHub Actions + Firebase App
+> Distribution (see below); iOS builds are verified in CI.
 
 ## Get the app
 
@@ -155,5 +157,3 @@ the simulator (no code signing needed).
   engines — planned for the week-5 milestone.
 - Launcher icons (`androidMain/res/mipmap-*`) and the iOS `AppIcon` are placeholders
   copied from the base project; swap them for `../shopverse-icons/` assets.
-- The `shopverse://orders/<id>` deep link is registered on both platforms
-  (Android manifest + iOS `Info.plist`) but not yet routed — wired with the orders feature.
