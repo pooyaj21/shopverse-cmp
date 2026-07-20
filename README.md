@@ -17,7 +17,7 @@ native Android reference app.
 Want to try ShopVerse CMP on Android? Join the tester group on Firebase App
 Distribution and you'll get every release straight to your device:
 
-**[appdistribution.firebase.dev/i/204fa6628f6b5b63](https://appdistribution.firebase.dev/i/204fa6628f6b5b63)**
+**[App Download Link](https://appdistribution.firebase.dev/i/8288a49802ffd524)**
 
 Alternatively, grab the signed APK attached to the latest
 [GitHub Release](../../releases/latest).
